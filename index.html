@@ -66,7 +66,7 @@ body{background:radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--acc) 24
 <section id="why"><h2>لماذا حجزك عندنا أسهل؟</h2><div class="grid"><div class="card"><div class="ico">✦</div><h3>حجز في دقائق</h3><p>اختاري الخدمة والموعد وأكدي حجزك بدون اتصال أو انتظار.</p></div><div class="card"><div class="ico">✦</div><h3>مواعيد حقيقية</h3><p>تظهر لك الأوقات المتاحة فقط، فلا تعارض ولا مفاجآت.</p></div><div class="card"><div class="ico">✦</div><h3>وضوح في السعر والمدة</h3><p>تعرفين التكلفة ومدة الخدمة قبل تأكيد الحجز.</p></div><div class="card"><div class="ico">✦</div><h3>تحكم كامل</h3><p>راجعي حجوزاتك وألغيها بنفسك من قسم «حجوزاتي».</p></div></div></section>
 <section id="about"><h2>عن الصالون</h2><p>نؤمن أن العناية بالنفس لحظة تستحق أن تُعاش بهدوء. صمّمنا المكان ليكون مساحة مريحة وخاصة للنساء، تجدين فيها اهتمامًا بالتفاصيل واحترامًا لوقتك وخصوصيتك.</p><p>نقدّم خدمات العناية والجمال في أجواء أنيقة ودافئة، ونسعى لأن تخرجي من عندنا وأنتِ تشعرين بالراحة والثقة. ويمكنك حجز موعدك بنفسك في دقائق، واختيار الوقت الذي يناسبك.</p></section>
 <section id="how"><h2>كيف تحجزين؟</h2><div class="grid"><div class="card"><span class="num">1</span><h3>اختاري خدمتك</h3><p>تصفحي الخدمات واختاري ما يناسبك.</p></div><div class="card"><span class="num">2</span><h3>حددي الموعد</h3><p>اختاري اليوم والوقت من المواعيد المتاحة.</p></div><div class="card"><span class="num">3</span><h3>أكدي حجزك</h3><p>أدخلي بياناتك واحتفظي برقم الحجز.</p></div></div></section>
-<section id="faq"><h2>أسئلة شائعة</h2><details><summary>هل يجب الدفع مسبقًا؟</summary><p>الخيار المتاح حاليًا هو الدفع في الصالون. أي خيارات دفع أخرى ستُعلن عند تفعيلها.</p></details><details><summary>كيف ألغي حجزي؟</summary><p>من قسم «حجوزاتي» إن كنتِ مسجّلة الدخول، أو بالاستعلام برقم الحجز ورقم جوالك. تخضع شروط الإلغاء لسياسة الصالون.</p></details><details><summary>كيف أتأكد أن حجزي تم؟</summary><p>يظهر رقم الحجز بعد حفظ الحجز فعليًا، ويمكنك الاستعلام عنه في أي وقت.</p></details></section>
+<section id="faq"><h2>أسئلة شائعة</h2><details><summary>هل يجب الدفع مسبقًا؟</summary><p>الخيار المتاح حاليًا هو الدفع في الصالون. أي خيارات دفع أخرى ستُعلن عند تفعيلها.</p></details><details><summary>كيف ألغي حجزي؟</summary><p>من قسم «حجوزاتي» أو بالاستعلام برقم الحجز ورقم جوالك. تخضع شروط الإلغاء لسياسة الصالون.</p></details><details><summary>كيف أتأكد أن حجزي تم؟</summary><p>يظهر رقم الحجز بعد حفظ الحجز فعليًا، ويمكنك الاستعلام عنه في أي وقت.</p></details></section>
 <section class="cta"><h2>جاهزة لموعدك؟</h2><p>اختاري الخدمة والوقت وأكدي حجزك خلال دقائق.</p><a class="btn" href="#book" data-go>ابدئي الحجز</a></section>
 <section id="book" tabindex="-1"><h2>الحجز</h2><div class="banner" id="demoBanner">وضع تجريبي: الخدمات والأسعار والساعات بيانات مؤقتة، والدفع الإلكتروني غير مفعّل.</div><ol class="steps" id="steps"></ol><div id="stage" aria-live="polite"></div></section>
 <section id="mine"><h2>حجوزاتي</h2><div id="waitCard"></div><div id="mineOut" aria-live="polite"><p class="note">جاري التحميل…</p></div></section>
@@ -83,13 +83,26 @@ services:[
 {id:"s3",cat:"الشعر",name:"علاج مكثف",desc:"",price:220,dur:90,active:false},
 {id:"s4",cat:"العناية بالأظافر",name:"مانيكير",desc:"",price:90,dur:45,active:true},
 {id:"s5",cat:"العناية بالأظافر",name:"باديكير",desc:"",price:110,dur:60,active:true}]};
+
+// محاكي قاعدة البيانات للمتصفحات والمواقع الثابتة مثل GitHub Pages
+const LocalDB = {
+  get: () => JSON.parse(localStorage.getItem("salon_bookings") || "[]"),
+  save: (data) => localStorage.setItem("salon_bookings", JSON.stringify(data)),
+  add: function(rec) { const list = this.get(); list.push(rec); this.save(list); },
+  updateStatus: function(ref, status) {
+    const list = this.get();
+    const item = list.find(x => x.ref === ref);
+    if(item) { item.status = status; item.updatedAt = new Date().toISOString(); this.save(list); }
+  }
+};
+
 const $=s=>document.querySelector(s),h=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const mins=t=>{const[a,b]=t.split(":");return+a*60+ +b},hhmm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
 const dkey=d=>new Intl.DateTimeFormat("en-CA",{timeZone:CONFIG.tz}).format(d);
 const dlabel=k=>new Intl.DateTimeFormat("ar-SA",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"}).format(new Date(k+"T00:00:00Z"));
 const wd=k=>new Date(k+"T00:00:00Z").getUTCDay();
 const SV=Object.fromEntries(CONFIG.services.map(s=>[s.id,s]));
-let db=null,uid="anon",S={step:0,sel:[],date:null,time:null,name:"",phone:"",email:"",notes:"",pay:"salon",busy:{},status:"idle",errs:{},result:null};
+let uid="guest_user",S={step:0,sel:[],date:null,time:null,name:"",phone:"",email:"",notes:"",pay:"salon",busy:{},status:"idle",errs:{},result:null};
 const STEPS=["الخدمة","الموعد","بياناتك","المراجعة","الدفع"];
 document.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",()=>{if(S.step>4)reset()}));
 $("#menu").onclick=()=>{const o=$("#nav").classList.toggle("open");$("#menu").setAttribute("aria-expanded",o)};
@@ -99,7 +112,7 @@ $("#svcList").querySelectorAll("[data-svc]").forEach(a=>a.onclick=()=>{reset();S
 function reset(){S={step:0,sel:[],date:null,time:null,name:"",phone:"",email:"",notes:"",pay:"salon",busy:{},status:"idle",errs:{},result:null};draw()}
 const total=()=>S.sel.reduce((a,i)=>a+SV[i].price,0),dur=()=>S.sel.reduce((a,i)=>a+SV[i].dur,0);
 function days(){const o=[],n=new Date();for(let i=0;i<CONFIG.horizonDays;i++){const d=new Date(n.getTime()+i*864e5),k=dkey(d);o.push({k,off:CONFIG.closedWeekdays.includes(wd(k))})}return o}
-async function loadDay(k){S.status="loading";draw();try{if(!db)throw 0;const q=await db.collection("bookings").where("date","==",k).get();S.busy[k]=q.docs.filter(d=>d.data().status!=="cancelled").map(d=>[d.data().start,d.data().end]);S.status="ok"}catch(e){S.status="error"}draw()}
+async function loadDay(k){S.status="loading";draw();try{const all=LocalDB.get();S.busy[k]=all.filter(d=>d.date===k&&d.status!=="cancelled").map(d=>[d.start,d.end]);S.status="ok"}catch(e){S.status="error"}draw()}
 function slotsFor(k){const need=dur(),o=mins(CONFIG.open),c=mins(CONFIG.close),b=S.busy[k]||[],out=[],now=new Date(),today=dkey(now)===k,nm=+new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,hour:"numeric",hour12:false}).format(now)*60+ +new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,minute:"numeric"}).format(now);
 for(let t=o;t+need<=c;t+=CONFIG.slotStep){if(today&&t<=nm)continue;if(!b.some(([s,e])=>t<e+CONFIG.buffer&&t+need+CONFIG.buffer>s))out.push(t)}return out}
 function draw(){$("#steps").innerHTML=STEPS.map((s,i)=>`<li class="${i<=Math.min(S.step,4)?"on":""}">${i+1}. ${s}</li>`).join("");const st=$("#stage");
@@ -125,7 +138,7 @@ function fmtD(m){const d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mm=m%60;ret
 async function startWait(L){clearInterval(waitT);const w=$("#waitCard"),n0=nowR();
 const nxt=L.filter(b=>(b.status==="pending"||b.status==="confirmed")&&diffMin(b,n0)+(b.end-b.start)>0).sort((a,b)=>diffMin(a,n0)-diffMin(b,n0))[0];
 if(!nxt){w.innerHTML="";return}
-let ahead=null;try{const q=await db.collection("bookings").where("date","==",nxt.date).get(),n1=nowR();ahead=q.docs.map(d=>d.data()).filter(x=>x.ref!==nxt.ref&&x.status!=="cancelled"&&x.status!=="completed"&&x.start<nxt.start&&(nxt.date!==n1.d||x.end>n1.m)).length}catch(e){}
+let ahead=null;try{const all=LocalDB.get(),n1=nowR();ahead=all.filter(x=>x.date===nxt.date&&x.ref!==nxt.ref&&x.status!=="cancelled"&&x.status!=="completed"&&x.start<nxt.start&&(nxt.date!==n1.d||x.end>n1.m)).length}catch(e){}
 const render=()=>{const df=diffMin(nxt,nowR());let msg,cls="";
 if(df<=0){msg="موعدك بدأ الآن.";cls="near"}
 else if(df<=15){msg="حان وقت الحضور! موعدك بعد "+fmtD(df)+".";cls="near"}
@@ -133,32 +146,30 @@ else if(df<=60){msg="اقترب موعدك، بعد "+fmtD(df)+". يُفضّل �
 else msg="يتبقى على موعدك "+fmtD(df);
 w.innerHTML=`<div class="card wait ${cls}" role="status"><p class="note">موعدك القادم · <span dir="ltr">${h(nxt.ref)}</span></p><p><b class="big">${h(msg)}</b></p><p>${h(dlabel(nxt.date))} · ${hhmm(nxt.start)}</p>${ahead===null?"":`<p>${ahead?`عدد الحجوزات قبلك في هذا اليوم: <b>${ahead}</b>`:"لا توجد حجوزات قبلك في هذا اليوم"}</p>`}</div>`};
 render();waitT=setInterval(render,30000)}
-async function loadMine(){const o=$("#mineOut");if(!db||uid==="anon"){o.innerHTML=`<p class="note">سجّلي الدخول لحساب Claude لعرض حجوزاتك هنا. ويمكنك الاستعلام عن أي حجز برقمه أدناه.</p>`;return}
-try{const q=await db.collection("bookings").where("ownerId","==",uid).get(),L=q.docs.map(d=>d.data()).sort((a,b)=>(b.date+String(b.start).padStart(4,"0")).localeCompare(a.date+String(a.start).padStart(4,"0")));
+async function loadMine(){const o=$("#mineOut");
+try{const all=LocalDB.get(),L=all.sort((a,b)=>(b.date+String(b.start).padStart(4,"0")).localeCompare(a.date+String(a.start).padStart(4,"0")));
 if(!L.length){$("#waitCard").innerHTML="";o.innerHTML=`<p>لا توجد حجوزات بعد.</p><a class="btn" href="#book">احجزي موعدك</a>`;return}
 startWait(L);const ST={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"};
 o.innerHTML=`<div class="grid">${L.map(b=>`<div class="card"><b dir="ltr">${h(b.ref)}</b>${summary(b)}<p>الحالة: <b>${ST[b.status]||h(b.status)}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":h(b.payStatus)}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" data-cx="${h(b.ref)}">إلغاء الحجز</button>`:""}</div>`).join("")}</div>`;
-o.querySelectorAll("[data-cx]").forEach(x=>x.onclick=async()=>{if(!confirm("هل تريدين إلغاء هذا الحجز؟"))return;x.disabled=true;try{await db.doc("bookings/"+x.dataset.cx).update({status:"cancelled",updatedAt:new Date().toISOString()});loadMine()}catch(e){x.disabled=false;alert("تعذّر الإلغاء. حاولي مرة أخرى.")}})}
+o.querySelectorAll("[data-cx]").forEach(x=>x.onclick=async()=>{if(!confirm("هل تريدين إلغاء هذا الحجز؟"))return;x.disabled=true;try{LocalDB.updateStatus(x.dataset.cx, "cancelled");loadMine()}catch(e){x.disabled=false;alert("تعذّر الإلغاء. حاولي مرة أخرى.")}})}
 catch(e){o.innerHTML=`<p class="err">تعذّر تحميل حجوزاتك. حاولي لاحقًا.</p>`}}
 const normPh=p=>p.replace(/^\+?966/,"0");
 async function submit(){S.status="saving";S.errs={};draw();try{
-if(!db)throw new Error("no-db");const lock=db.doc("locks/"+S.date),got=await lock.acquire({holder:uid+Math.random(),ttlMs:5000});
-if(!got.acquired){S.errs.submit="يوجد حجز آخر قيد المعالجة. حاولي بعد لحظات.";S.status="idle";return draw()}
-const q=await db.collection("bookings").where("date","==",S.date).get(),start=S.time,end=start+dur();
-const clash=q.docs.some(d=>{const b=d.data();return b.status!=="cancelled"&&start<b.end+CONFIG.buffer&&end+CONFIG.buffer>b.start});
+const all=LocalDB.get(),start=S.time,end=start+dur();
+const clash=all.some(b=>b.date===S.date&&b.status!=="cancelled"&&start<b.end+CONFIG.buffer&&end+CONFIG.buffer>b.start);
 if(clash){S.status="idle";S.step=6;return draw()}
 const ref="SB-"+Math.random().toString(36).slice(2,8).toUpperCase(),rec={ref,date:S.date,start,end,services:S.sel,total:total(),name:S.name,phone:normPh(S.phone),email:S.email,notes:S.notes,status:"pending",payStatus:"unpaid",payMethod:"salon",createdAt:new Date().toISOString(),tz:CONFIG.tz,ownerId:uid};
-await db.doc("bookings/"+ref).set(rec);const chk=await db.doc("bookings/"+ref).get();if(!chk.exists)throw new Error("not-saved");S.result=rec;S.status="idle";S.step=5;draw();loadMine()}
-catch(e){S.errs.submit=e.message==="no-db"?"قاعدة البيانات غير متاحة. سجّلي الدخول لحساب Claude لإتمام الحجز التجريبي.":"تعذّر حفظ الحجز. لم يتم تأكيد أي حجز، حاولي مرة أخرى.";S.status="idle";draw()}}
+LocalDB.add(rec);S.result=rec;S.status="idle";S.step=5;draw();loadMine()}
+catch(e){S.errs.submit="تعذّر حفظ الحجز. لم يتم تأكيد أي حجز، حاولي مرة أخرى.";S.status="idle";draw()}}
 $("#lkBtn").onclick=async()=>{const ref=$("#lkRef").value.trim().toUpperCase(),ph=normPh($("#lkPh").value.trim().replace(/[\s-]/g,"")),o=$("#lkOut");$("#lkErr").textContent="";o.innerHTML="";
-if(!/^SB-[A-Z0-9]{6}$/.test(ref)||!ph){$("#lkErr").textContent="أدخلي رقم الحجز ورقم الجوال بشكل صحيح.";return}
-try{const d=await db.doc("bookings/"+ref).get();if(!d.exists||d.data().phone!==ph){$("#lkErr").textContent="لم يتم العثور على حجز مطابق.";return}const b=d.data(),st={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"}[b.status];
-o.innerHTML=`<div class="card">${summary(b)}<p>حالة الحجز: <b>${st}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":b.payStatus}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" id="cx">إلغاء الحجز</button>`:""}</div>`;const cx=$("#cx");if(cx)cx.onclick=async()=>{await db.doc("bookings/"+ref).update({status:"cancelled",updatedAt:new Date().toISOString()});o.innerHTML=`<p>تم إلغاء الحجز.</p>`}}
+if(!/^SB-[A-Z0-9]{6}$/.test(ref)\vert{}\vert{}!ph){$("#lkErr").textContent="أدخلي رقم الحجز ورقم الجوال بشكل صحيح.";return}
+try{const all=LocalDB.get(),b=all.find(x=>x.ref===ref&&x.phone===ph);if(!b){$("#lkErr").textContent="لم يتم العثور على حجز مطابق.";return}const st={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"}[b.status];
+o.innerHTML=`<div class="card">${summary(b)}<p>حالة الحجز: <b>${st}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":b.payStatus}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" id="cx">إلغاء الحجز</button>`:""}</div>`;const cx=$("#cx");if(cx)cx.onclick=async()=>{LocalDB.updateStatus(ref, "cancelled");o.innerHTML=`<p>تم إلغاء الحجز.</p>`}}
 catch(e){$("#lkErr").textContent="تعذّر الاستعلام الآن. حاولي لاحقًا."}};
 renderServices();draw();
 try{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.05});document.querySelectorAll("main section:not(.hero)").forEach(s=>{s.classList.add("rv");io.observe(s)});
 const fab=$("#fab"),hide=new Set(),fo=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?hide.add(e.target.id||"cta"):hide.delete(e.target.id||"cta"));fab.classList.toggle("show",!hide.size)});["#book","#lookup",".hero",".cta"].forEach(q=>fo.observe($(q)))}catch(e){document.querySelectorAll(".rv").forEach(s=>s.classList.add("in"))}
-(async()=>{try{db=await claude.use("db");const u=await claude.use("user");if(u&&u.id)uid=await u.id()}catch(e){db=null}loadMine()})();
+loadMine();
 </script>
 </body>
 </html>
