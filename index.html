@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>صالون نسائى</title>
+<title>صالون نسائي</title>
 <meta name="description" content="احجزي موعدك بسهولة: اختاري الخدمة والموعد المناسب وأكدي حجزك خلال دقائق.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fcf8f5;--surf:#f4e9e5;--card:#fff;--tx:#2a2326;--mut:#6d6165;--acc:#9c3d5e;--acc-tx:#fff;--bd:#e8d9d4;--gold:#b8935a;--ok:#2f7a4f;--err:#b3342f;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#fcf8f5;--surf:#f4e9e5;--card:#fff;--tx:#2a2326;--mut:#6d6165;--acc:#9c3d5e;--acc-tx:#fff;--bd:#e8d9d4;--gold:#b8935a;--ok:#2f7a4f;--err:#b3342f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1c1a19;--surf:#2a2624;--card:#242120;--tx:#f1ebe3;--mut:#b5ab9d;--acc:#d08aa2;--acc-tx:#1c1a19;--bd:#3b3633;--ok:#6fcf97;--err:#ff8a84;color-scheme:dark}}
 :root[data-theme=dark]{--bg:#1c1a19;--surf:#2a2624;--card:#242120;--tx:#f1ebe3;--mut:#b5ab9d;--acc:#d08aa2;--acc-tx:#1c1a19;--bd:#3b3633;--ok:#6fcf97;--err:#ff8a84;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
@@ -75,7 +75,6 @@ body{background:radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--acc) 24
 <a class="btn fab" id="fab" href="#book" data-go>احجزي موعدك</a>
 <footer id="contact"><div><p>الهاتف: [رقم مؤقت] · البريد: [بريد مؤقت] · الموقع: [رابط الخريطة] · ساعات العمل: [تُحدَّد]</p><a href="#">سياسة الخصوصية</a><a href="#">الشروط والأحكام</a><a href="#">سياسة الإلغاء</a></div></footer>
 <script>
-// ===== إعدادات قابلة للتعديل (مؤقتة) =====
 const CONFIG={tz:"Asia/Riyadh",open:"10:00",close:"20:00",closedWeekdays:[5],slotStep:30,buffer:10,horizonDays:21,multi:true,payments:{salon:true,online:false,deposit:false},
 services:[
 {id:"s1",cat:"الشعر",name:"قص وتصفيف",desc:"",price:150,dur:60,active:true},
@@ -84,15 +83,13 @@ services:[
 {id:"s4",cat:"العناية بالأظافر",name:"مانيكير",desc:"",price:90,dur:45,active:true},
 {id:"s5",cat:"العناية بالأظافر",name:"باديكير",desc:"",price:110,dur:60,active:true}]};
 
-// محاكي قاعدة البيانات للمتصفحات والمواقع الثابتة مثل GitHub Pages
-const LocalDB = {
-  get: () => JSON.parse(localStorage.getItem("salon_bookings") || "[]"),
-  save: (data) => localStorage.setItem("salon_bookings", JSON.stringify(data)),
-  add: function(rec) { const list = this.get(); list.push(rec); this.save(list); },
-  updateStatus: function(ref, status) {
-    const list = this.get();
-    const item = list.find(x => x.ref === ref);
-    if(item) { item.status = status; item.updatedAt = new Date().toISOString(); this.save(list); }
+const LocalDB={
+  get:()=>JSON.parse(localStorage.getItem("salon_bookings")||"[]"),
+  save:(d)=>localStorage.setItem("salon_bookings",JSON.stringify(d)),
+  add:function(r){const l=this.get();l.push(r);this.save(l);},
+  updateStatus:function(rf,st){
+    const l=this.get();const i=l.find(x=>x.ref===rf);
+    if(i){i.status=st;i.updatedAt=new Date().toISOString();this.save(l);}
   }
 };
 
@@ -104,71 +101,175 @@ const wd=k=>new Date(k+"T00:00:00Z").getUTCDay();
 const SV=Object.fromEntries(CONFIG.services.map(s=>[s.id,s]));
 let uid="guest_user",S={step:0,sel:[],date:null,time:null,name:"",phone:"",email:"",notes:"",pay:"salon",busy:{},status:"idle",errs:{},result:null};
 const STEPS=["الخدمة","الموعد","بياناتك","المراجعة","الدفع"];
+
 document.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",()=>{if(S.step>4)reset()}));
 $("#menu").onclick=()=>{const o=$("#nav").classList.toggle("open");$("#menu").setAttribute("aria-expanded",o)};
 $("#nav").onclick=()=>$("#nav").classList.remove("open");
-function renderServices(pick){const cats=[...new Set(CONFIG.services.map(s=>s.cat))];$("#svcList").innerHTML=cats.map(c=>`<h3>${h(c)}</h3><div class="grid">${CONFIG.services.filter(s=>s.cat===c).map(s=>`<div class="card"><h3>${h(s.name)}</h3>${s.desc?`<p>${h(s.desc)}</p>`:""}<div class="meta"><span class="price">${s.price} ر.س</span><span class="tag">${s.dur} دقيقة</span></div>${s.active?`<a class="btn" href="#book" data-svc="${s.id}">احجزي</a>`:`<span class="tag">غير متاحة حاليًا</span>`}</div>`).join("")}</div>`).join("");
-$("#svcList").querySelectorAll("[data-svc]").forEach(a=>a.onclick=()=>{reset();S.sel=[a.dataset.svc];S.step=0;draw()})}
+
+function renderServices(){
+  const cats=[...new Set(CONFIG.services.map(s=>s.cat))];
+  $("#svcList").innerHTML=cats.map(c=>`<h3>${h(c)}</h3><div class="grid">${CONFIG.services.filter(s=>s.cat===c).map(s=>`<div class="card"><h3>${h(s.name)}</h3>${s.desc?`<p>${h(s.desc)}</p>`:""}<div class="meta"><span class="price">${s.price} ر.س</span><span class="tag">${s.dur} دقيقة</span></div>${s.active?`<a class="btn" href="#book" data-svc="${s.id}">احجزي</a>`:`<span class="tag">غير متاحة حاليًا</span>`}</div>`).join("")}</div>`).join("");
+  $("#svcList").querySelectorAll("[data-svc]").forEach(a=>a.onclick=()=>{reset();S.sel=[a.dataset.svc];S.step=0;draw()});
+}
+
 function reset(){S={step:0,sel:[],date:null,time:null,name:"",phone:"",email:"",notes:"",pay:"salon",busy:{},status:"idle",errs:{},result:null};draw()}
 const total=()=>S.sel.reduce((a,i)=>a+SV[i].price,0),dur=()=>S.sel.reduce((a,i)=>a+SV[i].dur,0);
 function days(){const o=[],n=new Date();for(let i=0;i<CONFIG.horizonDays;i++){const d=new Date(n.getTime()+i*864e5),k=dkey(d);o.push({k,off:CONFIG.closedWeekdays.includes(wd(k))})}return o}
-async function loadDay(k){S.status="loading";draw();try{const all=LocalDB.get();S.busy[k]=all.filter(d=>d.date===k&&d.status!=="cancelled").map(d=>[d.start,d.end]);S.status="ok"}catch(e){S.status="error"}draw()}
-function slotsFor(k){const need=dur(),o=mins(CONFIG.open),c=mins(CONFIG.close),b=S.busy[k]||[],out=[],now=new Date(),today=dkey(now)===k,nm=+new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,hour:"numeric",hour12:false}).format(now)*60+ +new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,minute:"numeric"}).format(now);
-for(let t=o;t+need<=c;t+=CONFIG.slotStep){if(today&&t<=nm)continue;if(!b.some(([s,e])=>t<e+CONFIG.buffer&&t+need+CONFIG.buffer>s))out.push(t)}return out}
-function draw(){$("#steps").innerHTML=STEPS.map((s,i)=>`<li class="${i<=Math.min(S.step,4)?"on":""}">${i+1}. ${s}</li>`).join("");const st=$("#stage");
-if(S.step===0){st.innerHTML=`<div class="grid">${CONFIG.services.map(s=>`<label class="card opt ${s.active?"":"dis"}"><input type="${CONFIG.multi?"checkbox":"radio"}" name="svc" value="${s.id}" ${S.sel.includes(s.id)?"checked":""} ${s.active?"":"disabled"}><span><b>${h(s.name)}</b><br><span class="note">${s.price} ر.س · ${s.dur} دقيقة${s.active?"":" · غير متاحة"}</span></span></label>`).join("")}</div><p><b>الإجمالي: ${total()} ر.س</b> · ${dur()} دقيقة</p><div class="actions"><span></span><button class="btn" id="nx" ${S.sel.length?"":"disabled"}>التالي</button></div>`;
-st.querySelectorAll("input").forEach(i=>i.onchange=()=>{S.sel=[...st.querySelectorAll("input:checked")].map(x=>x.value);S.date=S.time=null;draw()})}
-else if(S.step===1){const ds=days();st.innerHTML=`<div class="days" role="group" aria-label="اختاري اليوم">${ds.map(d=>`<button class="day" ${d.off?"disabled":""} aria-pressed="${S.date===d.k}" data-d="${d.k}">${h(dlabel(d.k))}</button>`).join("")}</div>`+(S.date?(S.status==="loading"?`<p>جاري تحميل الأوقات…</p>`:S.status==="error"?`<p class="err">تعذّر تحميل الأوقات المتاحة. حاولي مرة أخرى.</p><button class="btn sec" id="rt">إعادة المحاولة</button>`:(()=>{const sl=slotsFor(S.date);return sl.length?`<div class="slots">${sl.map(t=>`<button class="slot" aria-pressed="${S.time===t}" data-t="${t}">${hhmm(t)}</button>`).join("")}</div>`:`<p>لا توجد أوقات متاحة في هذا اليوم. جرّبي يومًا آخر.</p>`})()):`<p class="note">اختاري يومًا لعرض الأوقات المتاحة.</p>`)+nav(!!S.time);
-st.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{S.date=b.dataset.d;S.time=null;loadDay(S.date)});st.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.time=+b.dataset.t;draw()});const rt=$("#rt");if(rt)rt.onclick=()=>loadDay(S.date)}
-else if(S.step===2){const e=S.errs;st.innerHTML=`<label for="fn">الاسم الكامل</label><input type="text" id="fn" value="${h(S.name)}" autocomplete="name"><div class="err">${e.name||""}</div><label for="ph">رقم الجوال (05xxxxxxxx)</label><input type="tel" id="ph" dir="ltr" value="${h(S.phone)}" autocomplete="tel"><div class="err">${e.phone||""}</div><label for="em">البريد الإلكتروني (اختياري)</label><input type="email" id="em" dir="ltr" value="${h(S.email)}"><div class="err">${e.email||""}</div><label for="nt">ملاحظات (اختياري)</label><textarea id="nt" rows="3" maxlength="300">${h(S.notes)}</textarea>`+nav(true);}
-else if(S.step===3){st.innerHTML=summary()+`<p class="note">الدفع في الصالون. سياسة الإلغاء: [تُحدَّد من الصالون].</p>`+nav(true)}
-else if(S.step===4){st.innerHTML=summary()+`<h3>طريقة الدفع</h3>${CONFIG.payments.salon?`<label class="opt"><input type="radio" checked> الدفع في الصالون</label>`:""}<p class="note">الدفع الإلكتروني والعربون غير مفعّلين بعد، ويحتاجان حساب تاجر ومزوّد دفع معتمد.</p><div class="err" role="alert">${S.errs.submit||""}</div><div class="actions"><button class="btn sec" id="bk">رجوع</button><button class="btn" id="cf" ${S.status==="saving"?"disabled":""}>${S.status==="saving"?"جاري الحفظ…":"تأكيد الحجز"}</button></div>`}
-else if(S.step===5){const r=S.result;st.innerHTML=`<div class="card" style="text-align:center"><h3 style="color:var(--ok)">تم تسجيل حجزك</h3><p>رقم الحجز:</p><div class="ref">${h(r.ref)}</div><p class="note">احتفظي بالرقم مع جوالك للاستعلام عن الحجز.</p>${summary(r)}<p>حالة الحجز: <b>قيد التأكيد</b> · حالة الدفع: <b>غير مدفوع (الدفع في الصالون)</b></p><a class="btn" href="#home" id="home2">العودة للرئيسية</a></div>`;$("#home2").onclick=()=>reset()}
-else if(S.step===6){st.innerHTML=`<div class="card"><h3 style="color:var(--err)">هذا الموعد لم يعد متاحًا</h3><p>تم حجزه للتو. اختاري وقتًا آخر.</p><button class="btn" id="again">اختيار موعد آخر</button></div>`;$("#again").onclick=()=>{S.step=1;S.time=null;loadDay(S.date)}}
-bind()}
+
+async function loadDay(k){
+  S.status="loading";draw();
+  try{
+    const all=LocalDB.get();
+    S.busy[k]=all.filter(d=>d.date===k&&d.status!=="cancelled").map(d=>[d.start,d.end]);
+    S.status="ok";
+  }catch(e){S.status="error"}
+  draw();
+}
+
+function slotsFor(k){
+  const need=dur(),o=mins(CONFIG.open),c=mins(CONFIG.close),b=S.busy[k]||[],out=[],now=new Date(),today=dkey(now)===k,nm=+new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,hour:"numeric",hour12:false}).format(now)*60+ +new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,minute:"numeric"}).format(now);
+  for(let t=o;t+need<=c;t+=CONFIG.slotStep){
+    if(today&&t<=nm)continue;
+    if(!b.some(([s,e])=>t<e+CONFIG.buffer&&t+need+CONFIG.buffer>s))out.push(t);
+  }
+  return out;
+}
+
+function draw(){
+  $("#steps").innerHTML=STEPS.map((s,i)=>`<li class="${i<=Math.min(S.step,4)?"on":""}">${i+1}. ${s}</li>`).join("");
+  const st=$("#stage");
+  if(S.step===0){
+    st.innerHTML=`<div class="grid">${CONFIG.services.map(s=>`<label class="card opt ${s.active?"":"dis"}"><input type="${CONFIG.multi?"checkbox":"radio"}" name="svc" value="${s.id}" ${S.sel.includes(s.id)?"checked":""} ${s.active?"":"disabled"}><span><b>${h(s.name)}</b><br><span class="note">${s.price} ر.س · ${s.dur} دقيقة${s.active?"":" · غير متاحة"}</span></span></label>`).join("")}</div><p><b>الإجمالي: ${total()} ر.س</b> · ${dur()} دقيقة</p><div class="actions"><span></span><button class="btn" id="nx" ${S.sel.length?"":"disabled"}>التالي</button></div>`;
+    st.querySelectorAll("input").forEach(i=>i.onchange=()=>{S.sel=[...st.querySelectorAll("input:checked")].map(x=>x.value);S.date=S.time=null;draw()});
+  }else if(S.step===1){
+    const ds=days();
+    st.innerHTML=`<div class="days" role="group" aria-label="اختاري اليوم">${ds.map(d=>`<button class="day" ${d.off?"disabled":""} aria-pressed="${S.date===d.k}" data-d="${d.k}">${h(dlabel(d.k))}</button>`).join("")}</div>`+(S.date?(S.status==="loading"?`<p>جاري تحميل الأوقات…</p>`:S.status==="error"?`<p class="err">تعذّر تحميل الأوقات المتاحة. حاولي مرة أخرى.</p><button class="btn sec" id="rt">إعادة المحاولة</button>`:(()=>{const sl=slotsFor(S.date);return sl.length?`<div class="slots">${sl.map(t=>`<button class="slot" aria-pressed="${S.time===t}" data-t="${t}">${hhmm(t)}</button>`).join("")}</div>`:`<p>لا توجد أوقات متاحة في هذا اليوم. جرّبي يومًا آخر.</p>`})()):`<p class="note">اختاري يومًا لعرض الأوقات المتاحة.</p>`)+nav(!!S.time);
+    st.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{S.date=b.dataset.d;S.time=null;loadDay(S.date)});
+    st.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.time=+b.dataset.t;draw()});
+    const rt=$("#rt");if(rt)rt.onclick=()=>loadDay(S.date);
+  }else if(S.step===2){
+    const e=S.errs;
+    st.innerHTML=`<label for="fn">الاسم الكامل</label><input type="text" id="fn" value="${h(S.name)}" autocomplete="name"><div class="err">${e.name||""}</div><label for="ph">رقم الجوال (05xxxxxxxx)</label><input type="tel" id="ph" dir="ltr" value="${h(S.phone)}" autocomplete="tel"><div class="err">${e.phone||""}</div><label for="em">البريد الإلكتروني (اختياري)</label><input type="email" id="em" dir="ltr" value="${h(S.email)}"><div class="err">${e.email||""}</div><label for="nt">ملاحظات (اختياري)</label><textarea id="nt" rows="3" maxlength="300">${h(S.notes)}</textarea>`+nav(true);
+  }else if(S.step===3){
+    st.innerHTML=summary()+`<p class="note">الدفع في الصالون. سياسة الإلغاء: [تُحدَّد من الصالون].</p>`+nav(true);
+  }else if(S.step===4){
+    st.innerHTML=summary()+`<h3>طريقة الدفع</h3>${CONFIG.payments.salon?`<label class="opt"><input type="radio" checked> الدفع في الصالون</label>`:""}<p class="note">الدفع الإلكتروني والعربون غير مفعّلين بعد.</p><div class="err" role="alert">${S.errs.submit||""}</div><div class="actions"><button class="btn sec" id="bk">رجوع</button><button class="btn" id="cf" ${S.status==="saving"?"disabled":""}>${S.status==="saving"?"جاري الحفظ…":"تأكيد الحجز"}</button></div>`;
+  }else if(S.step===5){
+    const r=S.result;
+    st.innerHTML=`<div class="card" style="text-align:center"><h3 style="color:var(--ok)">تم تسجيل حجزك</h3><p>رقم الحجز:</p><div class="ref">${h(r.ref)}</div><p class="note">احتفظي بالرقم مع جوالك للاستعلام عن الحجز.</p>${summary(r)}<p>حالة الحجز: <b>قيد التأكيد</b> · حالة الدفع: <b>غير مدفوع (الدفع في الصالون)</b></p><a class="btn" href="#home" id="home2">العودة للرئيسية</a></div>`;
+    $("#home2").onclick=()=>reset();
+  }else if(S.step===6){
+    st.innerHTML=`<div class="card"><h3 style="color:var(--err)">هذا الموعد لم يعد متاحًا</h3><p>تم حجزه للتو. اختاري وقتًا آخر.</p><button class="btn" id="again">اختيار موعد آخر</button></div>`;
+    $("#again").onclick=()=>{S.step=1;S.time=null;loadDay(S.date)};
+  }
+  bind();
+}
+
 const nav=ok=>`<div class="actions"><button class="btn sec" id="bk">رجوع</button><button class="btn" id="nx" ${ok?"":"disabled"}>التالي</button></div>`;
-function summary(r){const d=r||{date:S.date,start:S.time,end:S.time+dur(),services:S.sel,total:total()};return `<div>${d.services.map(i=>`<div class="row"><span>${h(SV[i].name)} (${SV[i].dur} د)</span><span>${SV[i].price} ر.س</span></div>`).join("")}<div class="row"><span>الموعد</span><span>${h(dlabel(d.date))} · ${hhmm(d.start)}–${hhmm(d.end)}</span></div><div class="row"><b>الإجمالي</b><b>${d.total} ر.س</b></div><div class="row"><span>المطلوب دفعه الآن</span><span>0 ر.س</span></div></div>`}
-function bind(){const nx=$("#nx"),bk=$("#bk");if(bk)bk.onclick=()=>{S.step--;S.errs={};if(S.step===1&&S.date)loadDay(S.date);else draw()};
-if(nx)nx.onclick=()=>{if(S.step===2&&!readForm())return;S.step++;draw();$("#book").focus({preventScroll:false})};const cf=$("#cf");if(cf)cf.onclick=submit}
-function readForm(){S.name=$("#fn").value.trim();S.phone=$("#ph").value.trim().replace(/[\s-]/g,"");S.email=$("#em").value.trim();S.notes=$("#nt").value.trim();const e={};if(S.name.length<3)e.name="الرجاء إدخال الاسم الكامل.";if(!/^(05\d{8}|\+9665\d{8}|9665\d{8})$/.test(S.phone))e.phone="رقم الجوال غير صحيح. مثال: 0512345678";if(S.email&&!/^\S+@\S+\.\S+$/.test(S.email))e.email="البريد الإلكتروني غير صحيح.";S.errs=e;if(Object.keys(e).length){draw();return false}return true}
+
+function summary(r){
+  const d=r||{date:S.date,start:S.time,end:S.time+dur(),services:S.sel,total:total()};
+  return `<div>${d.services.map(i=>`<div class="row"><span>${h(SV[i].name)} (${SV[i].dur} د)</span><span>${SV[i].price} ر.س</span></div>`).join("")}<div class="row"><span>الموعد</span><span>${h(dlabel(d.date))} · ${hhmm(d.start)}–${hhmm(d.end)}</span></div><div class="row"><b>الإجمالي</b><b>${d.total} ر.س</b></div><div class="row"><span>المطلوب دفعه الآن</span><span>0 ر.س</span></div></div>`;
+}
+
+function bind(){
+  const nx=$("#nx"),bk=$("#bk");
+  if(bk)bk.onclick=()=>{S.step--;S.errs={};if(S.step===1&&S.date)loadDay(S.date);else draw()};
+  if(nx)nx.onclick=()=>{if(S.step===2&&!readForm())return;S.step++;draw();$("#book").focus({preventScroll:false})};
+  const cf=$("#cf");if(cf)cf.onclick=submit;
+}
+
+function readForm(){
+  S.name=$("#fn").value.trim();
+  S.phone=$("#ph").value.trim().replace(/[\s-]/g,"");
+  S.email=$("#em").value.trim();
+  S.notes=$("#nt").value.trim();
+  const e={};
+  if(S.name.length<3)e.name="الرجاء إدخال الاسم الكامل.";
+  if(!/^(05\d{8}|\+9665\d{8}|9665\d{8})$/.test(S.phone))e.phone="رقم الجوال غير صحيح. مثال: 0512345678";
+  if(S.email&&!/^\S+@\S+\.\S+$/.test(S.email))e.email="البريد الإلكتروني غير صحيح.";
+  S.errs=e;
+  if(Object.keys(e).length){draw();return false}
+  return true;
+}
+
 let waitT=null;
 const nowR=()=>{const n=new Date();return{d:dkey(n),m:+new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,hour:"numeric",hour12:false}).format(n)*60+ +new Intl.DateTimeFormat("en-GB",{timeZone:CONFIG.tz,minute:"numeric"}).format(n)}};
 const diffMin=(b,n)=>(Date.parse(b.date+"T00:00:00Z")-Date.parse(n.d+"T00:00:00Z"))/60000+b.start-n.m;
 function fmtD(m){const d=Math.floor(m/1440),hh=Math.floor(m%1440/60),mm=m%60;return [d?d+" يوم":"",hh?hh+" ساعة":"",mm?mm+" دقيقة":""].filter(Boolean).join(" و ")||"أقل من دقيقة"}
-async function startWait(L){clearInterval(waitT);const w=$("#waitCard"),n0=nowR();
-const nxt=L.filter(b=>(b.status==="pending"||b.status==="confirmed")&&diffMin(b,n0)+(b.end-b.start)>0).sort((a,b)=>diffMin(a,n0)-diffMin(b,n0))[0];
-if(!nxt){w.innerHTML="";return}
-let ahead=null;try{const all=LocalDB.get(),n1=nowR();ahead=all.filter(x=>x.date===nxt.date&&x.ref!==nxt.ref&&x.status!=="cancelled"&&x.status!=="completed"&&x.start<nxt.start&&(nxt.date!==n1.d||x.end>n1.m)).length}catch(e){}
-const render=()=>{const df=diffMin(nxt,nowR());let msg,cls="";
-if(df<=0){msg="موعدك بدأ الآن.";cls="near"}
-else if(df<=15){msg="حان وقت الحضور! موعدك بعد "+fmtD(df)+".";cls="near"}
-else if(df<=60){msg="اقترب موعدك، بعد "+fmtD(df)+". يُفضّل الوصول قبل الموعد بقليل.";cls="near"}
-else msg="يتبقى على موعدك "+fmtD(df);
-w.innerHTML=`<div class="card wait ${cls}" role="status"><p class="note">موعدك القادم · <span dir="ltr">${h(nxt.ref)}</span></p><p><b class="big">${h(msg)}</b></p><p>${h(dlabel(nxt.date))} · ${hhmm(nxt.start)}</p>${ahead===null?"":`<p>${ahead?`عدد الحجوزات قبلك في هذا اليوم: <b>${ahead}</b>`:"لا توجد حجوزات قبلك في هذا اليوم"}</p>`}</div>`};
-render();waitT=setInterval(render,30000)}
-async function loadMine(){const o=$("#mineOut");
-try{const all=LocalDB.get(),L=all.sort((a,b)=>(b.date+String(b.start).padStart(4,"0")).localeCompare(a.date+String(a.start).padStart(4,"0")));
-if(!L.length){$("#waitCard").innerHTML="";o.innerHTML=`<p>لا توجد حجوزات بعد.</p><a class="btn" href="#book">احجزي موعدك</a>`;return}
-startWait(L);const ST={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"};
-o.innerHTML=`<div class="grid">${L.map(b=>`<div class="card"><b dir="ltr">${h(b.ref)}</b>${summary(b)}<p>الحالة: <b>${ST[b.status]||h(b.status)}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":h(b.payStatus)}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" data-cx="${h(b.ref)}">إلغاء الحجز</button>`:""}</div>`).join("")}</div>`;
-o.querySelectorAll("[data-cx]").forEach(x=>x.onclick=async()=>{if(!confirm("هل تريدين إلغاء هذا الحجز؟"))return;x.disabled=true;try{LocalDB.updateStatus(x.dataset.cx, "cancelled");loadMine()}catch(e){x.disabled=false;alert("تعذّر الإلغاء. حاولي مرة أخرى.")}})}
-catch(e){o.innerHTML=`<p class="err">تعذّر تحميل حجوزاتك. حاولي لاحقًا.</p>`}}
+
+async function startWait(L){
+  clearInterval(waitT);const w=$("#waitCard"),n0=nowR();
+  const nxt=L.filter(b=>(b.status==="pending"||b.status==="confirmed")&&diffMin(b,n0)+(b.end-b.start)>0).sort((a,b)=>diffMin(a,n0)-diffMin(b,n0))[0];
+  if(!nxt){w.innerHTML="";return}
+  let ahead=null;
+  try{
+    const all=LocalDB.get(),n1=nowR();
+    ahead=all.filter(x=>x.date===nxt.date&&x.ref!==nxt.ref&&x.status!=="cancelled"&&x.status!=="completed"&&x.start<nxt.start&&(nxt.date!==n1.d||x.end>n1.m)).length;
+  }catch(e){}
+  const render=()=>{
+    const df=diffMin(nxt,nowR());let msg,cls="";
+    if(df<=0){msg="موعدك بدأ الآن.";cls="near"}
+    else if(df<=15){msg="حان وقت الحضور! موعدك بعد "+fmtD(df)+".";cls="near"}
+    else if(df<=60){msg="اقترب موعدك، بعد "+fmtD(df)+". يُفضّل الوصول قبل الموعد بقليل.";cls="near"}
+    else msg="يتبقى على موعدك "+fmtD(df);
+    w.innerHTML=`<div class="card wait ${cls}" role="status"><p class="note">موعدك القادم · <span dir="ltr">${h(nxt.ref)}</span></p><p><b class="big">${h(msg)}</b></p><p>${h(dlabel(nxt.date))} · ${hhmm(nxt.start)}</p>${ahead===null?"":`<p>${ahead?`عدد الحجوزات قبلك في هذا اليوم: <b>${ahead}</b>`:"لا توجد حجوزات قبلك في هذا اليوم"}</p>`}</div>`;
+  };
+  render();
+  waitT=setInterval(render,30000);
+}
+
+async function loadMine(){
+  const o=$("#mineOut");
+  try{
+    const all=LocalDB.get(),L=all.sort((a,b)=>(b.date+String(b.start).padStart(4,"0")).localeCompare(a.date+String(a.start).padStart(4,"0")));
+    if(!L.length){$("#waitCard").innerHTML="";o.innerHTML=`<p>لا توجد حجوزات بعد.</p><a class="btn" href="#book">احجزي موعدك</a>`;return}
+    startWait(L);
+    const ST={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"};
+    o.innerHTML=`<div class="grid">${L.map(b=>`<div class="card"><b dir="ltr">${h(b.ref)}</b>${summary(b)}<p>الحالة: <b>${ST[b.status]||h(b.status)}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":h(b.payStatus)}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" data-cx="${h(b.ref)}">إلغاء الحجز</button>`:""}</div>`).join("")}</div>`;
+    o.querySelectorAll("[data-cx]").forEach(x=>x.onclick=async()=>{
+      if(!confirm("هل تريدين إلغاء هذا الحجز؟"))return;
+      x.disabled=true;
+      try{LocalDB.updateStatus(x.dataset.cx,"cancelled");loadMine()}catch(e){x.disabled=false;alert("تعذّر الإلغاء. حاولي مرة أخرى.")}
+    });
+  }catch(e){o.innerHTML=`<p class="err">تعذّر تحميل حجوزاتك. حاولي لاحقًا.</p>`}
+}
+
 const normPh=p=>p.replace(/^\+?966/,"0");
-async function submit(){S.status="saving";S.errs={};draw();try{
-const all=LocalDB.get(),start=S.time,end=start+dur();
-const clash=all.some(b=>b.date===S.date&&b.status!=="cancelled"&&start<b.end+CONFIG.buffer&&end+CONFIG.buffer>b.start);
-if(clash){S.status="idle";S.step=6;return draw()}
-const ref="SB-"+Math.random().toString(36).slice(2,8).toUpperCase(),rec={ref,date:S.date,start,end,services:S.sel,total:total(),name:S.name,phone:normPh(S.phone),email:S.email,notes:S.notes,status:"pending",payStatus:"unpaid",payMethod:"salon",createdAt:new Date().toISOString(),tz:CONFIG.tz,ownerId:uid};
-LocalDB.add(rec);S.result=rec;S.status="idle";S.step=5;draw();loadMine()}
-catch(e){S.errs.submit="تعذّر حفظ الحجز. لم يتم تأكيد أي حجز، حاولي مرة أخرى.";S.status="idle";draw()}}
-$("#lkBtn").onclick=async()=>{const ref=$("#lkRef").value.trim().toUpperCase(),ph=normPh($("#lkPh").value.trim().replace(/[\s-]/g,"")),o=$("#lkOut");$("#lkErr").textContent="";o.innerHTML="";
-if(!/^SB-[A-Z0-9]{6}$/.test(ref)\vert{}\vert{}!ph){$("#lkErr").textContent="أدخلي رقم الحجز ورقم الجوال بشكل صحيح.";return}
-try{const all=LocalDB.get(),b=all.find(x=>x.ref===ref&&x.phone===ph);if(!b){$("#lkErr").textContent="لم يتم العثور على حجز مطابق.";return}const st={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"}[b.status];
-o.innerHTML=`<div class="card">${summary(b)}<p>حالة الحجز: <b>${st}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":b.payStatus}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" id="cx">إلغاء الحجز</button>`:""}</div>`;const cx=$("#cx");if(cx)cx.onclick=async()=>{LocalDB.updateStatus(ref, "cancelled");o.innerHTML=`<p>تم إلغاء الحجز.</p>`}}
-catch(e){$("#lkErr").textContent="تعذّر الاستعلام الآن. حاولي لاحقًا."}};
+
+async function submit(){
+  S.status="saving";S.errs={};draw();
+  try{
+    const all=LocalDB.get(),start=S.time,end=start+dur();
+    const clash=all.some(b=>b.date===S.date&&b.status!=="cancelled"&&start<b.end+CONFIG.buffer&&end+CONFIG.buffer>b.start);
+    if(clash){S.status="idle";S.step=6;return draw()}
+    const ref="SB-"+Math.random().toString(36).slice(2,8).toUpperCase();
+    const rec={ref,date:S.date,start,end,services:S.sel,total:total(),name:S.name,phone:normPh(S.phone),email:S.email,notes:S.notes,status:"pending",payStatus:"unpaid",payMethod:"salon",createdAt:new Date().toISOString(),tz:CONFIG.tz,ownerId:uid};
+    LocalDB.add(rec);S.result=rec;S.status="idle";S.step=5;draw();loadMine();
+  }catch(e){S.errs.submit="تعذّر حفظ الحجز. حاول مرة أخرى.";S.status="idle";draw()}
+}
+
+$("#lkBtn").onclick=async()=>{
+  const ref=$("#lkRef").value.trim().toUpperCase(),ph=normPh($("#lkPh").value.trim().replace(/[\s-]/g,"")),o=$("#lkOut");
+  $("#lkErr").textContent="";o.innerHTML="";
+  if(!/^SB-[A-Z0-9]{6}$/.test(ref)\vert{}\vert{}!ph){$("#lkErr").textContent="أدخلي رقم الحجز ورقم الجوال بشكل صحيح.";return}
+  try{
+    const all=LocalDB.get(),b=all.find(x=>x.ref===ref&&x.phone===ph);
+    if(!b){$("#lkErr").textContent="لم يتم العثور على حجز مطابق.";return}
+    const st={pending:"قيد التأكيد",confirmed:"مؤكد",cancelled:"ملغي",completed:"مكتمل"}[b.status];
+    o.innerHTML=`<div class="card">${summary(b)}<p>حالة الحجز: <b>${st}</b> · الدفع: <b>${b.payStatus==="unpaid"?"غير مدفوع":b.payStatus}</b></p>${b.status==="pending"||b.status==="confirmed"?`<button class="btn sec" id="cx">إلغاء الحجز</button>`:""}</div>`;
+    const cx=$("#cx");if(cx)cx.onclick=async()=>{LocalDB.updateStatus(ref,"cancelled");o.innerHTML=`<p>تم إلغاء الحجز.</p>`};
+  }catch(e){$("#lkErr").textContent="تعذّر الاستعلام الآن. حاولي لاحقًا."}
+};
+
 renderServices();draw();
-try{const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.05});document.querySelectorAll("main section:not(.hero)").forEach(s=>{s.classList.add("rv");io.observe(s)});
-const fab=$("#fab"),hide=new Set(),fo=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?hide.add(e.target.id||"cta"):hide.delete(e.target.id||"cta"));fab.classList.toggle("show",!hide.size)});["#book","#lookup",".hero",".cta"].forEach(q=>fo.observe($(q)))}catch(e){document.querySelectorAll(".rv").forEach(s=>s.classList.add("in"))}
+try{
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.05});
+  document.querySelectorAll("main section:not(.hero)").forEach(s=>{s.classList.add("rv");io.observe(s)});
+  const fab=$("#fab"),hide=new Set(),fo=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?hide.add(e.target.id||"cta"):hide.delete(e.target.id||"cta"));fab.classList.toggle("show",!hide.size)});
+  ["#book","#lookup",".hero",".cta"].forEach(q=>fo.observe($(q)));
+}catch(e){document.querySelectorAll(".rv").forEach(s=>s.classList.add("in"))}
+
 loadMine();
 </script>
 </body>
